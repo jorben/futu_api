@@ -136,7 +136,7 @@ Authorization: Bearer your_token_here
 | code | string | 是 | 股票代码，如 HK.00700 |
 | start | string | 否 | 开始日期，格式为 YYYY-MM-DD |
 | end | string | 否 | 结束日期，格式为 YYYY-MM-DD |
-| max_count | int | 否 | 每页最大记录数，默认100 |
+| max_count | int | 否 | 每页最大记录数，默认1000 |
 
 **示例：**
 
@@ -148,7 +148,20 @@ GET /api/stock/history_kline?code=HK.00700&start=2023-01-01&end=2023-02-01
 
 返回JSON格式的K线数据。
 
-### 获取历史K线配额
+字段	类型	说明
+code	str	股票代码
+name	str	股票名称
+time_key	str	K 线时间 
+open	float	开盘价
+close	float	收盘价
+high	float	最高价
+low	float	最低价
+pe_ratio	float	市盈率 
+turnover_rate	float	换手率
+volume	int	成交量
+turnover	float	成交额
+change_rate	float	涨跌幅
+last_close	float	昨收价
 
 ```
 GET /api/basic/history_kline_quota
