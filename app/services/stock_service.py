@@ -5,7 +5,7 @@ import os
 
 SysConfig.set_proto_fmt(ProtoFMT.Protobuf)
 
-def get_history_kline(code, start=None, end=None, max_count=100):
+def get_history_kline(code, start=None, end=None, max_count=1000, ktype=KLType.K_DAY, autype=AuType.QFQ):
     """
     获取历史K线数据
     
@@ -14,6 +14,8 @@ def get_history_kline(code, start=None, end=None, max_count=100):
         start (str, optional): 开始日期, 格式为'YYYY-MM-DD'
         end (str, optional): 结束日期, 格式为'YYYY-MM-DD'
         max_count (int, optional): 每页获取的最大记录数
+        ktype (KLType, optional): 周期类型
+        autype (AuType, optional): 复权类型
         
     返回:
         str: JSON格式的K线数据
@@ -33,7 +35,7 @@ def get_history_kline(code, start=None, end=None, max_count=100):
     
     ret, data, page_req_key = quote_ctx.request_history_kline(
         code, start=start, end=end, max_count=max_count, 
-        ktype=KLType.K_DAY, autype=AuType.QFQ, session=Session.ALL
+        ktype=ktype, autype=autype, session=Session.ALL
     )
     
     if ret == RET_OK:
@@ -45,7 +47,7 @@ def get_history_kline(code, start=None, end=None, max_count=100):
         # print('*************************************')
         ret, data, page_req_key = quote_ctx.request_history_kline(
             code, start=start, end=end, max_count=max_count, 
-            ktype=KLType.K_DAY, autype=AuType.QFQ, 
+            ktype=ktype, autype=autype, 
             page_req_key=page_req_key, session=Session.ALL
         )
         
