@@ -137,31 +137,38 @@ Authorization: Bearer your_token_here
 | start | string | 否 | 开始日期，格式为 YYYY-MM-DD |
 | end | string | 否 | 结束日期，格式为 YYYY-MM-DD |
 | max_count | int | 否 | 每页最大记录数，默认1000 |
+| ktype | string | 否 | K线类型，可选值：K_DAY(日K)、K_WEEK(周K)、K_MON(月K)、K_QUARTER(季K)、K_YEAR(年K)、K_1M(1分钟)、K_5M(5分钟)、K_15M(15分钟)、K_30M(30分钟)、K_60M(60分钟)、K_3M(3分钟)，默认为K_DAY |
+| autype | string | 否 | 复权类型，可选值：NONE(不复权)、QFQ(前复权)、HFQ(后复权)，默认为QFQ |
 
 **示例：**
 
 ```
-GET /api/stock/history_kline?code=HK.00700&start=2023-01-01&end=2023-02-01
+GET /api/stock/history_kline?code=HK.00700&start=2023-01-01&end=2023-02-01&ktype=K_DAY&autype=QFQ
 ```
 
 **响应：**
 
 返回JSON格式的K线数据。
 
-字段	类型	说明
-code	str	股票代码
-name	str	股票名称
-time_key	str	K 线时间 
-open	float	开盘价
-close	float	收盘价
-high	float	最高价
-low	float	最低价
-pe_ratio	float	市盈率 
-turnover_rate	float	换手率
-volume	int	成交量
-turnover	float	成交额
-change_rate	float	涨跌幅
-last_close	float	昨收价
+**响应字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| code | str | 股票代码 |
+| name | str | 股票名称 |
+| time_key | str | K线时间 |
+| open | float | 开盘价 |
+| close | float | 收盘价 |
+| high | float | 最高价 |
+| low | float | 最低价 |
+| pe_ratio | float | 市盈率 |
+| turnover_rate | float | 换手率 |
+| volume | int | 成交量 |
+| turnover | float | 成交额 |
+| change_rate | float | 涨跌幅 |
+| last_close | float | 昨收价 |
+
+### 获取历史K线配额
 
 ```
 GET /api/basic/history_kline_quota
