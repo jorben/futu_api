@@ -37,6 +37,7 @@
 - Flask 2.0.1
 - pandas 1.4.4
 - futu-api 9.2.5208
+- Gunicorn 20.1.0 (生产环境)
 
 ## 安装与运行
 
@@ -63,7 +64,7 @@ pip install -r requirements.txt
 ```bash
 conda install flask=2.0.1 werkzeug=2.0.1
 conda install pandas numpy
-pip install futu-api==9.2.5208 python-dotenv==1.0.0
+pip install futu-api==9.2.5208 python-dotenv==1.0.0 gunicorn==20.1.0
 ```
 
 ### 环境变量配置
@@ -75,8 +76,8 @@ pip install futu-api==9.2.5208 python-dotenv==1.0.0
 ```bash
 # Linux/Mac
 export API_TOKEN=your_secure_token
-export FUTU_HOST=127.0.0.1  # 默认为本地富途牛牛客户端地址
-export FUTU_PORT=11111      # 默认为本地富途牛牛客户端端口
+export FUTU_HOST=127.0.0.1  # 默认为本地富途openD客户端地址
+export FUTU_PORT=11111      # 默认为本地富途openD客户端端口
 
 # Windows
 set API_TOKEN=your_secure_token
@@ -96,11 +97,27 @@ FUTU_PORT=11111
 
 ### 运行应用
 
+#### 开发环境
+
 ```bash
 python run.py
 ```
 
 应用将在`http://0.0.0.0:15000`上启动。
+
+#### 生产环境
+
+使用 Gunicorn 作为 WSGI 服务器：
+
+```bash
+gunicorn --bind 0.0.0.0:15000 --workers 4 --timeout 120 run:app
+```
+
+参数说明：
+- `--bind`: 绑定地址和端口
+- `--workers`: 工作进程数，建议设置为 CPU 核心数的 2-4 倍
+- `--timeout`: 请求超时时间（秒）
+- `run:app`: 应用实例的导入路径
 
 ### Docker部署
 
@@ -114,7 +131,9 @@ docker build -t futu-api-server .
 docker run -d -p 15000:15000 -e API_TOKEN=your_token -e FUTU_HOST=host.docker.internal -e FUTU_PORT=11111 --name futu-api futu-api-server
 ```
 
-**注意**：当在Docker中运行时，如果要连接宿主机上的富途牛牛客户端，请使用`host.docker.internal`作为FUTU_HOST的值。
+**注意**：
+1. 当在Docker中运行时，如果要连接宿主机上的富途openD客户端，请使用`host.docker.internal`作为FUTU_HOST的值。
+2. Docker镜像默认使用Gunicorn作为生产环境服务器。
 
 ## API文档
 
@@ -207,3 +226,10 @@ conda install pandas=1.4.4 numpy=1.21.5
 ### 认证问题
 
 确保在请求头中正确设置了Authorization，格式为`Bearer your_token_here`，其中`your_token_here`应与环境变量`API_TOKEN`的值相匹配。
+
+### 生产环境注意事项
+
+1. 不要使用 Flask 开发服务器（`python run.py`）在生产环境中运行应用
+2. 始终使用 Gunicorn 或其他生产级别的 WSGI 服务器
+3. 确保设置了适当的工作进程数（workers）和超时时间
+4. 建议使用反向代理（如 Nginx）来处理 SSL 终止和负载均衡

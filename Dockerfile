@@ -8,4 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["python", "run.py"]
+EXPOSE 15000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:15000", "--workers", "4", "--timeout", "120", "run:app"]
