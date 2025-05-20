@@ -69,6 +69,44 @@ def get_history_kline(code, start=None, end=None, max_count=1000, ktype=KLType.K
     return None 
 
 
+def get_capital_flow(code, start=None, end=None, period_type=PeriodType.DAY):
+    """
+    获取股票的资金流向数据
+    
+    参数:
+        code (str): 股票代码
+        start (str, optional): 开始日期, 格式为'YYYY-MM-DD'
+        end (str, optional): 结束日期, 格式为'YYYY-MM-DD'
+        period_type (PeriodType, optional): 周期类型
+        
+    返回:
+        str: JSON格式的资金流向数据
+    """
+    if end is None:
+        end = datetime.now().strftime('%Y-%m-%d')
+    if start is None:
+        start = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+    
+    # 从环境变量读取FUTU API配置
+    futu_host = os.environ.get('FUTU_HOST', '127.0.0.1')
+    futu_port = int(os.environ.get('FUTU_PORT', 11111))
+    
+    quote_ctx = OpenQuoteContext(host=futu_host, port=futu_port)
+    
+    ret, data = quote_ctx.get_capital_flow(
+        code, start=start, end=end, period_type=period_type
+    )
+    quote_ctx.close()
+    
+    if ret == RET_OK:
+        return data.to_json(orient='records')
+    else:
+        print('error:', data)
+    
+    return None
+    
+    
+
 def get_stock_kdj(code, start=None, end=None):
     data = get_history_kline(code, start, end)
     if data is None:
