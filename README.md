@@ -230,6 +230,47 @@ GET /api/stock/capital_flow?code=HK.00700&start=2023-01-01&end=2023-02-01&period
 |capital_flow_item_time | str | 开始时间 | 
 |last_valid_time | str |	数据最后有效时间（仅实时周期有效）|
 
+### 获取股票资金分布数据
+
+```
+GET /api/stock/capital_distribution
+```
+
+**请求头：**
+```
+Authorization: Bearer your_token_here
+```
+
+**请求参数：**
+
+| 参数 | 类型 | 必填 | 描述 |
+|------|------|------|------|
+| code | string | 是 | 股票代码，如 HK.00700 |
+
+**示例：**
+
+```
+GET /api/stock/capital_distribution?code=HK.00700
+```
+
+**响应：**
+
+返回JSON格式的资金分布数据。
+
+**响应字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| capital_in_super | float | 流入资金额度，特大单 |
+| capital_in_big | float | 流入资金额度，大单 |
+| capital_in_mid | float | 流入资金额度，中单 |
+| capital_in_small | float | 流入资金额度，小单 |
+| capital_out_super | float | 流出资金额度，特大单 |
+| capital_out_big | float | 流出资金额度，大单 |
+| capital_out_mid | float | 流出资金额度，中单 |
+| capital_out_small | float | 流出资金额度，小单 |
+| update_time | str | 更新时间字符串 |
+
 ### 获取历史K线配额
 
 ```

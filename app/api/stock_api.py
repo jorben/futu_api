@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from futu import KLType, AuType, PeriodType
-from app.services.stock_service import get_history_kline, get_capital_flow
+from app.services.stock_service import *
 
 # 创建蓝图
 stock_bp = Blueprint('stock', __name__)
@@ -77,5 +77,30 @@ def capital_flow():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+@stock_bp.route('/capital_distribution', methods=['GET'])
+def capital_distribution():
+    """
+    获取股票资金分布数据API
+    
+    请求参数:
+        code: 股票代码，必填
+    
+    返回:
+        JSON格式的资金分布数据
+    """
+    # 获取请求参数
+    code = request.args.get('code')
+    
+    try:
+        # 调用服务层函数获取数据
+        result = get_capital_distribution(code)
+        
+        if result:
+            return result, 200, {'Content-Type': 'application/json'}
+        else:
+            return jsonify({"error": "未找到数据"}), 404
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
 

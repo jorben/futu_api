@@ -105,6 +105,31 @@ def get_capital_flow(code, start=None, end=None, period_type=PeriodType.DAY):
     
     return None
     
+def get_capital_distribution(code):
+    """
+    获取股票的资金分布数据
+    
+    参数:
+        code (str): 股票代码
+        
+    返回:
+        str: JSON格式的资金分布数据
+    """
+    # 从环境变量读取FUTU API配置
+    futu_host = os.environ.get('FUTU_HOST', '127.0.0.1')
+    futu_port = int(os.environ.get('FUTU_PORT', 11111))
+    
+    quote_ctx = OpenQuoteContext(host=futu_host, port=futu_port)
+    
+    ret, data = quote_ctx.get_capital_distribution(code)
+    quote_ctx.close()
+    
+    if ret == RET_OK:
+        return data.to_json(orient='records')
+    else:
+        print('error:', data)
+    
+    return None
     
 
 def get_stock_kdj(code, start=None, end=None):
