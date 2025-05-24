@@ -1,7 +1,11 @@
 from flask import Blueprint, jsonify, request
-from futu import AuType, KLType
+from futu import AuType, KLType, PeriodType
 
-from app.services.stock_service import get_history_kline
+from app.services.stock_service import (
+    get_capital_distribution,
+    get_capital_flow,
+    get_history_kline,
+)
 
 # 创建蓝图
 stock_bp = Blueprint("stock", __name__)
@@ -38,6 +42,66 @@ def history_kline():
     try:
         # 调用服务层函数获取数据
         result = get_history_kline(code, start, end, max_count, ktype, autype)
+
+        if result:
+            return result, 200, {"Content-Type": "application/json"}
+        else:
+            return jsonify({"error": "未找到数据"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@stock_bp.route("/capital_flow", methods=["GET"])
+def capital_flow():
+    """
+    获取股票资金流向数据API
+
+    请求参数:
+        code: 股票代码，必填
+        start: 开始日期，可选，格式为'YYYY-MM-DD'
+        end: 结束日期，可选，格式为'YYYY-MM-DD'
+        period_type: 周期类型，可选，默认DAY
+
+    返回:
+        JSON格式的资金流向数据
+    """
+    # 获取请求参数
+    code = request.args.get("code")
+    start = request.args.get("start")
+    end = request.args.get("end")
+    period_type = request.args.get("period_type", PeriodType.DAY, type=PeriodType)
+
+    try:
+        # 调用服务层函数获取数据
+        result = get_capital_flow(code, start, end, period_type)
+
+        if result:
+            return result, 200, {"Content-Type": "application/json"}
+        else:
+            return jsonify({"error": "未找到数据"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@stock_bp.route("/capital_distribution", methods=["GET"])
+def capital_distribution():
+    """
+    获取股票资金分布数据API
+
+    请求参数:
+        code: 股票代码，必填
+
+    返回:
+        JSON格式的资金分布数据
+    """
+    # 获取请求参数
+    code = request.args.get("code")
+
+    try:
+        # 调用服务层函数获取数据
+        result = get_capital_distribution(code)
 
         if result:
             return result, 200, {"Content-Type": "application/json"}
