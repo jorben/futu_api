@@ -1,6 +1,14 @@
 # FUTU API 封装
 
-这是一个将富途API封装为RESTful API的Flask应用。
+这是一个将富途OpenD的API封装为RESTful API的Flask应用。
+
+## Roadmap [WIP]
+
+- [x] 查询指定标的的历史K线数据接口
+- [x] 查询指定标的的资金流向数据接口
+- [x] 查询指定标的的资金分布数据接口
+- [x] 查询账户的历史K线配额接口
+- [ ] 以上接口支持MCP协议
 
 ## 功能特点
 
