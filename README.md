@@ -26,35 +26,35 @@
 │       ├── __init__.py     # 服务层包初始化
 │       ├── stock_service.py # 股票数据服务
 │       └── basic_service.py # 基础功能服务
+├── .pre-commit-config.yaml # Pre-commit配置文件
+├── pyproject.toml          # 项目配置和依赖管理
+├── uv.lock                 # uv锁定文件
 ├── Dockerfile              # Docker构建文件
-├── run.py                  # 应用入口
-└── requirements.txt        # 项目依赖
+└── run.py                  # 应用入口
 ```
 
 ## 环境要求
 
 - Python 3.9+
 - Flask 2.0.1
-- pandas 1.4.4
 - futu-api 9.2.5208
 - Gunicorn 20.1.0 (生产环境)
 
+
 ## 安装与运行
 
-### 使用pip安装（推荐）
-
-1. 创建并激活虚拟环境（可选但推荐）：
+### 使用uv安装（推荐）
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-```
+# 安装 uv（如果尚未安装）
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-2. 安装依赖：
+# 克隆仓库
+git clone https://github.com/jorben/mcp-futu-api.git
+cd mcp-futu-api
 
-```bash
-pip install -r requirements.txt
+# 安装依赖并创建虚拟环境
+uv sync
 ```
 
 ### 使用conda安装
@@ -62,9 +62,16 @@ pip install -r requirements.txt
 如果您使用conda环境，请使用以下命令安装依赖：
 
 ```bash
-conda install flask=2.0.1 werkzeug=2.0.1
-conda install pandas numpy
-pip install futu-api==9.2.5208 python-dotenv==1.0.0 gunicorn==20.1.0
+conda create -n mcp-futu-api python=3.9
+conda activate mcp-futu-api
+
+# 克隆仓库
+git clone https://github.com/jorben/mcp-futu-api.git
+cd mcp-futu-api
+
+# 安装依赖
+pip install -e .
+
 ```
 
 ### 环境变量配置
@@ -95,12 +102,73 @@ FUTU_PORT=11111
 
 **注意**：如果您没有设置`API_TOKEN`，系统将使用默认值`dev_token_for_testing`（仅适用于开发环境）。
 
+## 开发工具
+
+### 代码格式化和检查（Ruff）
+
+本项目使用 [Ruff](https://github.com/astral-sh/ruff) 进行代码格式化和静态检查。Ruff 是一个极快的 Python 代码检查器和格式化工具。
+
+#### 使用方法
+
+```bash
+# 使用uv运行（推荐）
+uv run ruff check .          # 检查代码
+uv run ruff check . --fix    # 检查并自动修复
+uv run ruff format .         # 格式化代码
+
+# 直接运行（需要先激活虚拟环境）
+ruff check .                 # 检查代码
+ruff check . --fix          # 检查并自动修复
+ruff format .               # 格式化代码
+```
+
+#### Ruff配置
+
+项目的Ruff配置在 `pyproject.toml` 文件中，包括：
+
+- 行长度限制：88字符
+- 启用的检查规则：pycodestyle、pyflakes、isort、flake8-bugbear等
+- 代码格式化：使用双引号，空格缩进
+
+### Git提交钩子（Pre-commit）
+
+本项目配置了 [pre-commit](https://pre-commit.com/) 钩子，在每次提交前自动运行代码检查和格式化。
+
+#### 安装pre-commit钩子
+
+```bash
+# 使用uv安装开发依赖（包含pre-commit）
+uv sync --group dev
+
+pre-commit install
+
+```
+
+#### 手动运行pre-commit
+
+```bash
+# 对所有文件运行
+uv run pre-commit run --all-files
+
+# 对暂存文件运行
+uv run pre-commit run
+```
+
+#### Pre-commit配置
+
+`.pre-commit-config.yaml` 文件配置了以下钩子：
+
+- **Ruff检查和格式化**：自动修复代码风格问题
+- **基础检查**：去除尾随空格、检查YAML/TOML语法、检查合并冲突等
+
 ### 运行应用
 
 #### 开发环境
 
 ```bash
-python run.py
+# 使用uv运行（推荐）
+uv run python run.py
+
 ```
 
 应用将在`http://0.0.0.0:15000`上启动。
@@ -110,6 +178,10 @@ python run.py
 使用 Gunicorn 作为 WSGI 服务器：
 
 ```bash
+# 使用uv运行（推荐）
+uv run gunicorn --bind 0.0.0.0:15000 --workers 4 --timeout 120 run:app
+
+# 或者在python环境中运行
 gunicorn --bind 0.0.0.0:15000 --workers 4 --timeout 120 run:app
 ```
 
@@ -125,10 +197,10 @@ gunicorn --bind 0.0.0.0:15000 --workers 4 --timeout 120 run:app
 
 ```bash
 # 构建Docker镜像
-docker build -t futu-api-server .
+docker build -t mcp-futu-api .
 
 # 运行容器
-docker run -d -p 15000:15000 -e API_TOKEN=your_token -e FUTU_HOST=host.docker.internal -e FUTU_PORT=11111 --name futu-api futu-api-server
+docker run -d -p 15000:15000 -e API_TOKEN=your_token -e FUTU_HOST=host.docker.internal -e FUTU_PORT=11111 --name mcp-futu-api mcp-futu-api
 ```
 
 **注意**：
@@ -209,18 +281,60 @@ Authorization: Bearer your_token_here
 
 ## 故障排除
 
-### 依赖问题
+### 包管理问题
 
-如果遇到pandas和numpy的二进制不兼容问题，请尝试：
+#### uv相关问题
+
+如果uv命令无法识别，请确保已正确安装并添加到PATH：
 
 ```bash
-conda install pandas numpy
+# 重新安装uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 或者使用pip安装
+pip install uv
 ```
 
-或指定兼容的版本：
+#### 虚拟环境问题
+
+如果虚拟环境有问题，可以删除并重新创建：
 
 ```bash
-conda install pandas=1.4.4 numpy=1.21.5
+# 删除现有虚拟环境
+rm -rf .venv
+
+# 重新安装依赖
+uv sync --group dev
+```
+
+### 代码质量工具问题
+
+#### Ruff配置问题
+
+如果Ruff检查失败，请检查配置：
+
+```bash
+# 查看当前配置
+uv run ruff check --show-settings
+
+# 忽略特定文件
+echo "exclude = ['migrations/', '*.pb2.py']" >> pyproject.toml
+```
+
+#### Pre-commit钩子问题
+
+如果pre-commit钩子执行失败：
+
+```bash
+# 重新安装钩子
+uv run pre-commit uninstall
+uv run pre-commit install
+
+# 更新钩子
+uv run pre-commit autoupdate
+
+# 跳过钩子提交（不推荐）
+git commit --no-verify
 ```
 
 ### 认证问题
